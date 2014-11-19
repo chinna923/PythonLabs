@@ -24,7 +24,7 @@ class DbCacheMixin(object):
         cache and cache will be filled with data for future retrievals.
 
         Args:
-            kwargs: Dictionary contaning primary key name to value mapping.
+            kwargs: Dictionary contadpining primary key name to value mapping.
                 Only one primary key is supported here.
 
         Returns:
@@ -43,7 +43,7 @@ class DbCacheMixin(object):
 
     @classmethod
     def cached_create(cls, **kwargs):
-        """Creates coloumn in to DB and deletes key from cache.
+        """Creates column in to DB and deletes key from cache.
 
         Use this function instead of 'Models.create()' to enforce clearing of
         cache for the same key.
@@ -57,3 +57,19 @@ class DbCacheMixin(object):
         cls.create(**kwargs)
         REDIS_CLIENT.delete(value)
 
+    @classmethod
+    def cached_delete(cls, **kwargs):
+        """Deletes a column DB and from cache.
+
+        Use this function instead of 'Models.delete()' to enforce clearing of
+        cache for the same key.
+
+        Args:
+            kwargs: Dictionary containing column name to value mapping.
+        """
+        key_name = cls._primary_keys.keys()[0]
+        value = kwargs[key_name]
+        data = cls.get(**kwargs)
+        LOGGER.info('Deleting product with ID %s from DB.', value)
+        data.delete()
+        REDIS_CLIENT.delete(value)
