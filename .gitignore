@@ -19,6 +19,14 @@ lib64
 pip-log.txt
 sam.log
 
+# Unused files
+.pyc
+.swp
+.DS_Store
+.py~
+.sh~
+.p~
+
 # Unit test / coverage reports
 .coverage
 .tox
