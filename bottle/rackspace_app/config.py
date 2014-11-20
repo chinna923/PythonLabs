@@ -12,3 +12,4 @@ class Config(object):
     DATABASE_NAME = 'rackspace_demo'
     REDIS_IP = '127.0.0.1'
     REDIS_PORT = '6379'
+    SERVER_TYPE = 'gevent'

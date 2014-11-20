@@ -1,5 +1,8 @@
 "Rackspace demo application"
 
+from gevent import monkey
+monkey.patch_all()
+
 import bottle
 from rackspace_app import APP, db, LOGGER
 from rackspace_app.endpoints.product_api import Product, Products
@@ -31,7 +34,7 @@ class Server(object):
 
     def start(self):  # pylint: disable=no-self-use
         """Implements method to run the in-built http server."""
-        APP.run(host=APP.config.SERVER_IP, debug=APP.config.DEBUG)
+        APP.run(host=APP.config.SERVER_IP, debug=APP.config.DEBUG, server=APP.config.SERVER_TYPE)
 
 if __name__ == '__main__':
     LOGGER.info('Starting Server & database connections...')

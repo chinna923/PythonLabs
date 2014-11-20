@@ -27,4 +27,4 @@ def static_server():
 if __name__ == '__main__':
     LOGGER.info('Starting Server...')
     db.Database().run()  # Runs Cassandra database server.
-    APP.run(host=APP.config['SERVER_IP'], debug=APP.config['DEBUG'])
+    APP.run(host=APP.config['SERVER_IP'], threaded=True, debug=APP.config['DEBUG'])
