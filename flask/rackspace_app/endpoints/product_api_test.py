@@ -66,10 +66,10 @@ class TestProduct(unittest.TestCase):
         """Test for exception in post function."""
         products.ProductsDetails.cached_create.side_effect = Exception
         result = self.product.post(
-                product_id=self.product_id, request=self.request)
+                product_id=self.product_id, request=self.request)[0]
         message = ('Error while saving product ID %s: %s' %
                    (self.product_id, ''))
-        return_exception = {'success': False, 'msg': message}, 500
+        return_exception = {'success': False, 'msg': message}
         self.assertEquals(result, return_exception)
 
     def test_get(self):
@@ -79,7 +79,7 @@ class TestProduct(unittest.TestCase):
         products.ProductsDetails.product_type = self.product_type
         product_details_obj = products.ProductsDetails()
         products.ProductsDetails.cached_get.return_value = product_details_obj
-        result = self.product.get(product_id=self.product_id)
+        result = self.product.get(product_id=self.product_id)[0]
         self.assertTrue(result['success'])
         self.assertEquals(result['data'], self.value)
         products.ProductsDetails.cached_get.assert_called_once_with(
@@ -90,17 +90,17 @@ class TestProduct(unittest.TestCase):
         # Test for DoesNotExist exception.
         products.ProductsDetails.cached_get.side_effect = \
                 products.ProductsDetails.DoesNotExist
-        result = self.product.get(product_id=self.product_id)
+        result = self.product.get(product_id=self.product_id)[0]
         message = 'No data found with product ID %s.' % self.product_id
         return_exception = {'success': True, 'msg': message}
         self.assertEquals(result, return_exception)
 
         # Test for Exception.
         products.ProductsDetails.cached_get.side_effect = Exception
-        result = self.product.get(product_id=self.product_id)
+        result = self.product.get(product_id=self.product_id)[0]
         message = ('Error while fetching product ID %s: %s' %
                    (self.product_id, ''))
-        return_exception = {'success': False, 'msg': message}, 500
+        return_exception = {'success': False, 'msg': message}
         self.assertEquals(result, return_exception)
 
     def test_delete(self):
@@ -115,17 +115,17 @@ class TestProduct(unittest.TestCase):
         # Test for DoesNotExist exception.
         products.ProductsDetails.cached_delete.side_effect = \
             products.ProductsDetails.DoesNotExist
-        result = self.product.delete(product_id=self.product_id)
+        result = self.product.delete(product_id=self.product_id)[0]
         message = 'No data found with product ID %s.' % self.product_id
-        return_exception = {'success': False, 'msg': message}, 500
+        return_exception = {'success': False, 'msg': message}
         self.assertEquals(result, return_exception)
 
         # Test for exception.
         products.ProductsDetails.cached_delete.side_effect = Exception
-        result = self.product.delete(product_id=self.product_id)
+        result = self.product.delete(product_id=self.product_id)[0]
         message = ('Error while deleting product ID %s: %s' %
                    (self.product_id, ''))
-        return_exception = {'success': False, 'msg': message}, 500
+        return_exception = {'success': False, 'msg': message}
         self.assertEquals(result, return_exception)
 
 
@@ -149,7 +149,7 @@ class TestProducts(unittest.TestCase):
         """Test for get all products function."""
         org_objects = products.ProductsDetails.objects
         products.ProductsDetails.objects = MockObjects()
-        data = Products().get()
+        data = Products().get()[0]
         products_list = data['products']
         self.assertEquals(2, len(products_list))
         self.assertEquals('Cisco 5SA', products_list[0]['product_name'])

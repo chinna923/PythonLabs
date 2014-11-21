@@ -7,8 +7,12 @@ from rackspace_app import LOGGER
 
 
 # Error codes for different Server errors.
-INTERNAL_ERROR = 500
 BAD_REQUEST = 400
+INTERNAL_ERROR = 500
+SUCCESS = 200
+
+# Access control header.
+ACCESS_CONTROL_HEADERS = {'Access-Control-Allow-Origin': '*'}
 
 
 class ProductApiError(Exception):
@@ -43,13 +47,16 @@ class Product(restful.Resource):
             message = 'No data found with product ID %s.' % product_id
             LOGGER.error(message)
             # Return '200' with 'no data found' message.
-            return {'success': True, 'msg': message}
+            return ({'success': True, 'msg': message},
+                    SUCCESS, ACCESS_CONTROL_HEADERS)
         except Exception as error:
             message = ('Error while fetching product ID %s: %s' %
                        (product_id, error.message))
             LOGGER.error(message)
-            return {'success': False, 'msg': message}, INTERNAL_ERROR
-        return {'success': True, 'data': data}
+            return ({'success': False, 'msg': message}, INTERNAL_ERROR,
+                    ACCESS_CONTROL_HEADERS)
+        return ({'success': True, 'data': data}, SUCCESS,
+                ACCESS_CONTROL_HEADERS)
 
     def post(self, product_id, request=request):  #pylint: disable=no-self-use
         """Puts a product information in to DB with product ID as a key.
@@ -66,7 +73,8 @@ class Product(restful.Resource):
         product_type = data.get('product_type', '')
         if not (product_name or product_type):
             # Return '400' with 'no data to save' message.
-            return {'success': False, 'msg': 'No data to post.'}, BAD_REQUEST
+            return ({'success': False, 'msg': 'No data to post.'}, BAD_REQUEST,
+                    ACCESS_CONTROL_HEADERS)
         try:
             products.ProductsDetails.cached_create(
                     product_id=product_id, product_name=product_name,
@@ -75,8 +83,10 @@ class Product(restful.Resource):
             message = ('Error while saving product ID %s: %s' %
                        (product_id, error.message))
             LOGGER.error(message)
-            return {'success': False, 'msg': message}, INTERNAL_ERROR
-        return {'success': True, 'msg': 'Data posted successfully.'}
+            return ({'success': False, 'msg': message}, INTERNAL_ERROR,
+                    ACCESS_CONTROL_HEADERS)
+        return ({'success': True, 'msg': 'Data posted successfully.'}, SUCCESS,
+                ACCESS_CONTROL_HEADERS)
 
     def delete(self, product_id):  #pylint: disable=no-self-use
         """Deletes a product information from DB.
@@ -94,13 +104,26 @@ class Product(restful.Resource):
             message = 'No data found with product ID %s.' % product_id
             LOGGER.error(message)
             # Return '500' with 'no data found' message.
-            return {'success': False, 'msg': message}, INTERNAL_ERROR
+            return ({'success': False, 'msg': message}, INTERNAL_ERROR,
+                    ACCESS_CONTROL_HEADERS)
         except Exception as error:  # pylint: disable=broad-except
             message = ('Error while deleting product ID %s: %s' %
                        (product_id, error.message))
             LOGGER.error(message)
-            return {'success': False, 'msg': message}, INTERNAL_ERROR
-        return {'success': True, 'msg': 'Data deleted successfully.'}
+            return ({'success': False, 'msg': message}, INTERNAL_ERROR,
+                    ACCESS_CONTROL_HEADERS)
+        return ({'success': True, 'msg': 'Data deleted successfully.'}, SUCCESS,
+                ACCESS_CONTROL_HEADERS)
+
+    def options(self, **kwargs):
+        """Implements HTTP OPTIONS function to be used for access control."""
+        return ({}, 200,
+        {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods' : 'PUT,GET,DELETE,POST,OPTIONS',
+            'Access-Control-Allow-Headers': ('Origin, X-Requested-With,'
+                                             'Content-Type, Accept')
+        })
 
 
 class Products(restful.Resource):
@@ -128,5 +151,7 @@ class Products(restful.Resource):
         except Exception as error:
             message = ('Error while fetching products list, %s' % error.message)
             LOGGER.error(message)
-            return {'success': False, 'msg': message}, INTERNAL_ERROR
-        return {'success': True, 'products': products_list}
+            return ({'success': False, 'msg': message}, INTERNAL_ERROR,
+                    ACCESS_CONTROL_HEADERS)
+        return ({'success': True, 'products': products_list},
+                SUCCESS, ACCESS_CONTROL_HEADERS)
