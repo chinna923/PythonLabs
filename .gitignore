@@ -40,3 +40,11 @@ nosetests.xml
 .project
 .pydevproject
 cover
+
+# Unused files
+.pyc
+.swp
+.DS_Store
+.py~
+.sh~
+.p~
